@@ -1,0 +1,19 @@
+{
+  "name": "kantine-nettside-",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/Aksel-Reistad/Kantine-nettside-#readme",
+  "bugs": {
+    "url": "https://github.com/Aksel-Reistad/Kantine-nettside-/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aksel-Reistad/Kantine-nettside-.git"
+  },
+  "license": "ISC",
+  "author": "Aksel Reistad",
+  "main": "index.php",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
