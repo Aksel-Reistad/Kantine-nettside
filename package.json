@@ -21,7 +21,11 @@
     "dev": "concurrently \"npm run client\" \"npm run server\""
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.21.2",
+    "mysql": "^2.18.1",
     "node.js": "^0.0.1-security"
-  }
+  },
+  "keywords": [],
+  "type": "commonjs"
 }
