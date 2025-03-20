@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>sql database portal</title>
+    <title>Kantine Database</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         textarea { width: 100%; height: 100px; margin-bottom: 10px; }
@@ -12,17 +12,69 @@
     </style>
 </head>
 <body>
-    <h1>sql database portal</h1>
+    <h1>SQL Kantine Database</h1>
     <textarea id="sqlQuery" placeholder="Write your SQL query here..."></textarea>
+    <textarea id="strekskriving" placeholder="skriv strekkoden her"></textarea>
+
     <button onclick="runQuery()">Run Query</button>
     <button onclick="hentTrenere()">Hent Trenere</button>
+    <button onclick="scankode()"> strekkode query</button>
     <h3>Results:</h3>
     <pre id="results"></pre>
 
     <script>
+        let sqltekst;
+
+        async function scankode(){
+            sqltekst=document.getElementById('strekskriving').value; // man må gjøre teksten til en variabel før du kan querye den.
+            console.log(sqltekst) //husk å lage variabel for hvor mange det er 
+            const query = `SELECT * FROM trenere WHERE Navn LIKE (${sqltekst})`; 
+            // SELECT * FROM trenere WHERE Navn LIKE 'PER KURT'
+            // const query = `INSERT INTO trenere (Navn) VALUES ('${sqltekst}')`// er variabelen som kommer til å få strekkode på seg er en midlertidig plasering for dattaen å bli lagres.
+            const response = await fetch('http://localhost:3000/run-query',{
+            method: 'Post',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify({ query })
+        
+            });
+            //alt under er for å lage et eksempel i databasen vis det ikke er en fra før også viser den eksempelet som ble laget            
+            const data = await response.json();
+            const results = document.getElementById('results');
+            if (data.error) {
+                results.textContent = 'Error: ' + data.error;
+                console.log("funket")
+                
+            }
+            
+            else if (data.results && data.results.length === 0) {
+                console.log("Lagde ny");
+                const query = `INSERT INTO trenere (Navn) VALUES ('${sqltekst}')`
+                const response = await fetch('http://localhost:3000/run-query',{
+                method: 'Post',
+                headers: { 'Content-Type': 'application/json'},
+                body: JSON.stringify({ query })
+                
+                });
+                const data = await response.json();
+            const results = document.getElementById('results');
+            if (data.error) {
+                results.textContent = 'Error: ' + data.error;
+            }
+            else {
+                results.textContent = JSON.stringify(data.results, null, 2);
+            }
+            }
+            else{
+                results.textContent = JSON.stringify(data.results, null, 2);
+            }
+        }
+
+
+
         async function runQuery() {
+
             const query = document.getElementById('sqlQuery').value;
-            const response = await fetch('http://localhost:3000/run-query', {
+            const response = await fetch('http://localhost:3000/run-query', { // hvær gang det står localhost trenger å bli endret når vi flyter over til den onkelige databasen
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ query })
@@ -37,7 +89,7 @@
             }
         }
 
-        async function hentTrenere() {
+        async function hentTrenere() { //dette er bare for å teste og har ingenting med slutproduktet å gjør når man nærmer seg ferdig fjern dette
             const query = "SELECT * FROM trenere";
             const response = await fetch('http://localhost:3000/run-query', {
                 method: 'POST',
@@ -49,10 +101,16 @@
             const results = document.getElementById('results');
             if (data.error) {
                 results.textContent = 'Error: ' + data.error;
+
             } else {
                 results.textContent = JSON.stringify(data.results, null, 2);
             }
         }
+
+    //    knappe seksjonen
+        async function MengdeKnap(){
+
+        } 
     </script>
 </body>
 </html>
