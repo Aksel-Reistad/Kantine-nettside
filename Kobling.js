@@ -12,7 +12,8 @@ const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: 'root',
-    database: 'mydb',
+    database: 'kantine-database',
+    // database: 'mydb',
     port: 3307
 });
 // Koble til databasen

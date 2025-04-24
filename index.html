@@ -13,32 +13,51 @@
 </head>
 <body>
     <h1>SQL Kantine Database</h1>
-    <!-- sqlQuery' -->
-    <textarea id="sqlQuery" placeholder="Write your SQL query here..."></textarea>
-    <textarea id="strekskriving" placeholder="skriv strekkoden her"></textarea>
+    <!-- sqlQuery -->
+    <button onclick="VisLagNy()">Leg til ny vare</button>
+    <button onclick="EndreDatta()">EndreDatta</button>
+    <button onclick="HentAllData()">Hent KantineTabel</button>
+    <!-- <button onclick="scankode()"> strekkode query</button> -->
+    <button onclick="søk()">søk</button>
+
+    <br><br>
+        <button style ="display:none" id="NavnSøkID" onclick="NavnSøk()">Navn Søk</button>
+        <button style ="display:none" id="MengdeSøkID"onclick="MengdeSøk()">MengdeSøk</button>
+        <button style ="display:none" id="BeskrivelseSøkID"onclick="BeskrivelseSøk()">BeskrivelseSøk</button>
+
+    <!-- <button onclick="runQuery()">Run Query</button> -->
+
+    
+    <textarea id="strekskriving" placeholder="Søkkefelt/strekkode"></textarea>
 
     <!-- informasjon som skal leges til i databasen -->
     <textarea style="display:none" id="Navn" placeholder="skriv navnet her"></textarea>
 
-    <textarea style="display:none" id="Mengde" placeholder="skriv mengden her"></textarea>
+    <textarea style="display:none" id="MengdeID" placeholder="skriv mengden her"></textarea>
 
     <textarea style="display:none" id="Beskrivelse" placeholder="skriv Beskrivelse her" value="disabled"></textarea>
 
-    <button onclick="runQuery()">Run Query</button>
-    <button onclick="hentTrenere()">Hent Trenere</button>
-    <button onclick="scankode()"> strekkode query</button>
-    <button style="display:none" id="Beskrivelse" onclick="LagNy()">Leg In Ny Vare</button>
 
-    <h3>Results:</h3>
+    <button style="display:none" id="Bekreftelse" onclick="BekreftLagNy()">Leg In Ny Vare</button>
+
+    <h3>Resultater:</h3>
     <pre id="results"></pre>
 
     <script>
         let sqltekst;
+        let navn;
+        let mengde;
+        let beskrivelse;
 
         async function scankode(){
             sqltekst=document.getElementById('strekskriving').value; // man må gjøre teksten til en variabel før du kan querye den.
+            navn=document.getElementById('Navn').value; // man må gjøre teksten til en variabel før du kan querye den.
+
             console.log(sqltekst) //husk å lage variabel for hvor mange det er 
-            const query = `SELECT * FROM trenere WHERE Navn LIKE (${sqltekst})`; 
+
+            const query = `SELECT * FROM KantineTabel WHERE Navn LIKE (${sqltekst})`; 
+            
+            
             // SELECT * FROM trenere WHERE Navn LIKE 'PER KURT'
             // const query = `INSERT INTO trenere (Navn) VALUES ('${sqltekst}')`// er variabelen som kommer til å få strekkode på seg er en midlertidig plasering for dattaen å bli lagres.
             const response = await fetch('http://localhost:3000/run-query',{
@@ -62,32 +81,22 @@
                 NavnSynlig();
                 BekreftelseSynlig();
                 console.log("Viste Informasjonsfeltene");
-                
 
-            //     console.log("Lagde ny");
-            //     const query = `INSERT INTO trenere (Navn) VALUES ('${sqltekst}')`
-            //     const response = await fetch('http://localhost:3000/run-query',{
-            //     method: 'Post',
-            //     headers: { 'Content-Type': 'application/json'},
-            //     body: JSON.stringify({ query })
-                
-            //     });
-            //     const data = await response.json();
-            // const results = document.getElementById('results');
-            // if (data.error) {
-            //     results.textContent = 'Error: ' + data.error;
-            // }
-            // else {
-            //     results.textContent = JSON.stringify(data.results, null, 2);
-            // }
-            // }
-            // else{
-            //     results.textContent = JSON.stringify(data.results, null, 2);
             }
         }
-        async function LagNy() {
-            console.log("Lagde ny");
-                const query = `INSERT INTO trenere (Navn) VALUES ('${sqltekst}')`
+        async function BekreftLagNy() {
+            sqltekst=document.getElementById('strekskriving').value; // man må gjøre teksten til en variabel før du kan querye den.
+            navn=document.getElementById('Navn').value; // man må gjøre teksten til en variabel før du kan querye den.
+            beskrivelse=document.getElementById('Beskrivelse').value; // man må gjøre teksten til en variabel før du kan querye den.
+            mengde=document.getElementById('Mengde').value; // man må gjøre teksten til en variabel før du kan querye den.
+            console.log("Prøvde å Lage ny");
+                // const query = `INSERT INTO trenere (Navn) VALUES ('${sqltekst}')`
+
+                // const query = `INSERT INTO KantineTabel (StrekKode, Navn) VALUES ('${sqltekst}'${navn})`
+                const query = `INSERT INTO KantineTabel (StrekKode, Navn, Beskrivelse, Mengde) 
+                
+                VALUES ('${sqltekst}', '${navn}', '${beskrivelse}', '${mengde}')`;
+
                 const response = await fetch('http://localhost:3000/run-query',{
                 method: 'Post',
                 headers: { 'Content-Type': 'application/json'},
@@ -125,8 +134,8 @@
             }
         }
 
-        async function hentTrenere() { //dette er bare for å teste og har ingenting med slutproduktet å gjør når man nærmer seg ferdig fjern dette
-            const query = "SELECT * FROM trenere";
+        async function HentAllData() { //dette er bare for å teste og har ingenting med slutproduktet å gjør når man nærmer seg ferdig fjern dette
+            const query = "SELECT * FROM KantineTabel";
             const response = await fetch('http://localhost:3000/run-query', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -143,9 +152,174 @@
             }
         }
 
-    //    knappe seksjonen
+        //søkk
+        // async function HentAllData() {
+        //     sqltekst=document.getElementById('strekskriving').value; // man må gjøre teksten til en variabel før du kan querye den.
+        //     navn=document.getElementById('Navn').value; // man må gjøre teksten til en variabel før du kan querye den.
+
+        //     console.log(sqltekst) //husk å lage variabel for hvor mange det er 
+
+        //     const query = `SELECT * FROM KantineTabel WHERE Navn LIKE (${sqltekst})`; 
+            
+        //     // SELECT * FROM trenere WHERE Navn LIKE 'PER KURT'
+        //     // const query = `INSERT INTO trenere (Navn) VALUES ('${sqltekst}')`// er variabelen som kommer til å få strekkode på seg er en midlertidig plasering for dattaen å bli lagres.
+        //     const response = await fetch('http://localhost:3000/run-query',{
+        //     method: 'Post',
+        //     headers: { 'Content-Type': 'application/json'},
+        //     body: JSON.stringify({ query })
+        
+        //     });
+        //     //alt under er for å lage et eksempel i databasen vis det ikke er en fra før også viser den eksempelet som ble laget            
+        //     const data = await response.json();
+        //     const results = document.getElementById('results');
+        //     if (data.error) {
+        //         results.textContent = 'Error: ' + data.error;
+        //         console.log("funket")
+                
+        //     }
+
+
+        
+        async function EndreDatta() {
+            sqltekst=document.getElementById('strekskriving').value; // man må gjøre teksten til en variabel før du kan querye den.
+            MengdeTekst=document.getElementById('MengdeID').value; // man må gjøre teksten til en variabel før du kan querye den.
+
+            console.log(sqltekst) //husk å lage variabel for hvor mange det er 
+
+            const query = `UPDATE KantineTabel SET Mengde = Mengde + ${MengdeTekst} WHERE StrekKode LIKE '%${sqltekst}%'`;
+
+
+            // FROM KantineTabel WHERE Mengde LIKE 
+            
+            // SELECT * FROM trenere WHERE Navn LIKE 'PER KURT'
+            // const query = `INSERT INTO trenere (Navn) VALUES ('${sqltekst}')`// er variabelen som kommer til å få strekkode på seg er en midlertidig plasering for dattaen å bli lagres.
+            const response = await fetch('http://localhost:3000/run-query',{
+            method: 'Post',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify({ query })
+        
+            });
+            //alt under er for å lage et eksempel i databasen vis det ikke er en fra før også viser den eksempelet som ble laget            
+            const data = await response.json();
+            const results = document.getElementById('results');
+            if (data.error) {
+                results.textContent = 'Error: ' + data.error;
+                console.log("funket")
+                
+            }
+
+
+        }
+
+    // Synlig knapper
+    function søk(){
+        var x = document.getElementById("BeskrivelseSøkID");
+                if (x.style.display === "none") {
+                 x.style.display = "block";
+                } else {
+                x.style.display = "none";
+                }
+                var x = document.getElementById("NavnSøkID");
+                if (x.style.display === "none") {
+                 x.style.display = "block";
+                } else {
+                x.style.display = "none";
+                }
+                var x = document.getElementById("MengdeSøkID");
+                if (x.style.display === "none") {
+                 x.style.display = "block";
+                } else {
+                x.style.display = "none";
+                }
+    }
+    
+        async function NavnSøk(){
+            sqltekst=document.getElementById('strekskriving').value; // man må gjøre teksten til en variabel før du kan querye den.
+
+            console.log(sqltekst)
+
+            const query = `SELECT * FROM KantineTabel WHERE Navn LIKE '%${sqltekst}%'`;
+            
+            // SELECT * FROM trenere WHERE Navn LIKE 'PER KURT'
+            // const query = `INSERT INTO trenere (Navn) VALUES ('${sqltekst}')`// er variabelen som kommer til å få strekkode på seg er en midlertidig plasering for dattaen å bli lagres.
+            const response = await fetch('http://localhost:3000/run-query',{
+            method: 'Post',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify({ query })
+        
+            });
+            const data = await response.json();
+            const results = document.getElementById('results');
+            if (data.error) {
+                results.textContent = 'Error: ' + data.error;
+
+            } else {
+                results.textContent = JSON.stringify(data.results, null, 2);
+            }
+        }
+         
+        async function BeskrivelseSøk(){
+            sqltekst=document.getElementById('strekskriving').value; // man må gjøre teksten til en variabel før du kan querye den.
+
+            console.log(sqltekst)
+
+            const query = `SELECT * FROM KantineTabel WHERE Beskrivelse LIKE '%${sqltekst}%'`;
+            
+            // SELECT * FROM trenere WHERE Navn LIKE 'PER KURT'
+            // const query = `INSERT INTO trenere (Navn) VALUES ('${sqltekst}')`// er variabelen som kommer til å få strekkode på seg er en midlertidig plasering for dattaen å bli lagres.
+            const response = await fetch('http://localhost:3000/run-query',{
+            method: 'Post',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify({ query })
+        
+            });
+            const data = await response.json();
+            const results = document.getElementById('results');
+            if (data.error) {
+                results.textContent = 'Error: ' + data.error;
+
+            } else {
+                results.textContent = JSON.stringify(data.results, null, 2);
+            }
+        }   
+    
+        async function MengdeSøk(){
+            sqltekst=document.getElementById('strekskriving').value; // man må gjøre teksten til en variabel før du kan querye den.
+
+            console.log(sqltekst)
+
+            const query = `SELECT * FROM KantineTabel WHERE Mengde LIKE (${sqltekst})`; 
+            
+            
+            // SELECT * FROM trenere WHERE Navn LIKE 'PER KURT'
+            // const query = `INSERT INTO trenere (Navn) VALUES ('${sqltekst}')`// er variabelen som kommer til å få strekkode på seg er en midlertidig plasering for dattaen å bli lagres.
+            const response = await fetch('http://localhost:3000/run-query',{
+            method: 'Post',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify({ query })
+        
+            });
+            const data = await response.json();
+            const results = document.getElementById('results');
+            if (data.error) {
+                results.textContent = 'Error: ' + data.error;
+
+            } else {
+                results.textContent = JSON.stringify(data.results, null, 2);
+            }
+        } 
+
+
+    //    Synlig skrivefelt
+        function VisLagNy(){
+        MengdeSynlig()
+        NavnSynlig()
+        BeskrivelseSynlig()
+        BekreftelseSynlig()
+        }
+
         function MengdeSynlig(){
-            var x = document.getElementById("Mengde");
+            var x = document.getElementById("MengdeID");
                 if (x.style.display === "none") {
                  x.style.display = "block";
                 } else {
